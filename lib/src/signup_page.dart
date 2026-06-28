@@ -1,16 +1,16 @@
-import 'package:auth_firebase/src/signup_page.dart';
+import 'package:auth_firebase/src/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  static route() => MaterialPageRoute(builder: (context) => const LoginPage());
-  const LoginPage({super.key});
+class SignUpPage extends StatefulWidget {
+  static route() => MaterialPageRoute(builder: (context) => const SignUpPage());
+  const SignUpPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -22,14 +22,14 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> signInWithEmailAndPassword() async {
+  Future<void> createUserWithEmailAndPassword() async {
     try {
       final userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
+          .createUserWithEmailAndPassword(
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
           );
-      print('User signed in: ${userCredential}');
+      print('User created: ${userCredential}');
     } on FirebaseAuthException catch (e) {
       print(e);
     }
@@ -38,7 +38,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Form(
@@ -47,10 +46,11 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Sign In.',
+                'Sign Up.',
                 style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: emailController,
                 decoration: const InputDecoration(hintText: 'Email'),
@@ -63,34 +63,30 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                    Colors.cyanAccent,
-                  ),
-                ),
                 onPressed: () async {
-                  await signInWithEmailAndPassword();
+                  await createUserWithEmailAndPassword();
                 },
                 child: const Text(
-                  'SIGN IN',
+                  'SIGN UP',
                   style: TextStyle(
+                    backgroundColor: Colors.black45,
                     fontSize: 16,
-                    color: Color.fromARGB(255, 15, 15, 15),
+                    color: Color.fromARGB(255, 241, 3, 3),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(context, SignUpPage.route());
+                  Navigator.push(context, LoginPage.route());
                 },
                 child: RichText(
                   text: TextSpan(
-                    text: 'Don\'t have an account? ',
+                    text: 'Already have an account? ',
                     style: Theme.of(context).textTheme.titleMedium,
                     children: [
                       TextSpan(
-                        text: 'Sign Up',
+                        text: 'Sign In',
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
