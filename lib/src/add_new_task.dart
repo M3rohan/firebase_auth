@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:auth_firebase/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
@@ -31,7 +32,9 @@ class _AddNewTaskState extends State<AddNewTask> {
       final data = await FirebaseFirestore.instance.collection('tasks').add({
         'title': titleController.text.trim(),
         'description': descriptionController.text.trim(),
-        'date': FieldValue.serverTimestamp(),
+        'date': selectedDate,
+        'creator': FirebaseAuth.instance.currentUser!.uid,
+        'postedAt': FieldValue.serverTimestamp(),
         'color': rgbToHex(_selectedColor),
       });
       print(data.id);
@@ -105,12 +108,18 @@ class _AddNewTaskState extends State<AddNewTask> {
               const SizedBox(height: 10),
               TextFormField(
                 controller: titleController,
-                decoration: const InputDecoration(hintText: 'Title'),
+                decoration: const InputDecoration(
+                  hintText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: descriptionController,
-                decoration: const InputDecoration(hintText: 'Description'),
+                decoration: const InputDecoration(
+                  hintText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
                 maxLines: 3,
               ),
               const SizedBox(height: 10),
@@ -127,6 +136,13 @@ class _AddNewTaskState extends State<AddNewTask> {
               ),
               const SizedBox(height: 10),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _selectedColor,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15,
+                  ),
+                ),
                 onPressed: () async {
                   await uploadTaskToDb();
                 },
