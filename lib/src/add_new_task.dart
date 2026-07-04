@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'package:auth_firebase/src/coming_soon.dart';
+import 'package:auth_firebase/src/help_support.dart';
 import 'package:auth_firebase/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:uuid/uuid.dart';
@@ -52,28 +55,62 @@ class _AddNewTaskState extends State<AddNewTask> {
     }
   }
 
+  Future<void> initializeRemoteConfig() async {
+    try {
+      final remoteConfig = FirebaseRemoteConfig.instance;
+      print("Instance created");
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: Duration(seconds: 30),
+          minimumFetchInterval: Duration.zero,
+        ),
+      );
+
+      print("Settings done");
+
+      await remoteConfig.setDefaults({'isHidden': false});
+
+      print("Defaults done");
+      await remoteConfig.fetchAndActivate();
+
+      print("Fetched");
+    } catch (e) {
+      print("Error in remote config: $e");
+    }
+  }
+
+  // bool get showScreen => FirebaseRemoteConfig.instance.getBool('isHidden');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New Task'),
         actions: [
-          GestureDetector(
+          InkWell(
             onTap: () async {
-              final selDate = await showDatePicker(
-                context: context,
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 90)),
+              await initializeRemoteConfig();
+              final showScreen = FirebaseRemoteConfig.instance.getBool(
+                'isHidden',
               );
-              if (selDate != null) {
-                setState(() {
-                  selectedDate = selDate;
-                });
-              }
+              print('Firebase Remote Config---------> $showScreen');
+              showScreen
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HelpSupport(),
+                      ),
+                    )
+                  : Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ComingSoon(),
+                      ),
+                    );
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(DateFormat('MM-d-y').format(selectedDate)),
+              child: Icon(Icons.access_alarm, size: 40),
             ),
           ),
         ],

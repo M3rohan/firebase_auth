@@ -1,3 +1,4 @@
+import 'package:auth_firebase/notification_service.dart';
 import 'package:auth_firebase/src/add_new_task.dart';
 import 'package:auth_firebase/utils.dart';
 import 'package:auth_firebase/widgets/date_selector.dart';
@@ -14,7 +15,20 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+final NotificationService notificationService = NotificationService();
+
+Future<void> _setupNotifications() async {
+  await notificationService.initNotification();
+  notificationService.setupMessageListeners();
+}
+
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    _setupNotifications();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
